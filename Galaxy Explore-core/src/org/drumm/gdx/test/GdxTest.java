@@ -67,8 +67,8 @@ public class GdxTest extends ApplicationAdapter {
 		ArrayList<BasePlanet> planets = new ArrayList<BasePlanet>();
 		 planetTxr = new Texture(Gdx.files.internal("planet1.png"));
 		planets.add(new BasePlanet(0, 0, 0, 50, 50, planetTxr));
-		planets.add(new BasePlanet(100, 150, 37, 150, 150, planetTxr));
-		planets.add(new BasePlanet(100, 100, 194, 100, 100, planetTxr));
+		planets.add(new BasePlanet(1000, 1500, 37, 75, 75, planetTxr));
+		planets.add(new BasePlanet(1000, -1000, 194, 100, 100, planetTxr));
 		
 		 somgr = new SimpleSpaceObjectManager(planets);
 
