@@ -1,11 +1,11 @@
 package org.drumm.gdx.space;
 
 public class SpaceObject implements ISpaceObject {
-	private float x;
-	private float y;
-	private float degrees;
-	private float width;
-	private float height;
+	protected float x;
+	protected float y;
+	protected float degrees;
+	protected float width;
+	protected float height;
 
 	public SpaceObject(float x, float y, float degrees, float width, float height) {
 		super();

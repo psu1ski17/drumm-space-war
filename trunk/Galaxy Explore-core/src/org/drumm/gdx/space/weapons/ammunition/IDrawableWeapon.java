@@ -8,4 +8,6 @@ import org.drumm.gdx.space.common.HasDrawable;
  */
 public interface IDrawableWeapon extends HasDrawable{
 
+	void update(float delta);
+
 }
