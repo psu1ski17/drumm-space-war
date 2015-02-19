@@ -1,6 +1,6 @@
 package org.drumm.gdx.space;
 
-public class ForceBasedMovable extends SpaceObject implements Movable {
+public class ForceBasedMovable extends SpaceObject implements Movable, Thrustable {
 
 	private float angularAccelleration;
 	private float maxAngularAccelleration;
