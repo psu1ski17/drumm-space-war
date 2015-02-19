@@ -1,14 +1,12 @@
 package org.drumm.gdx.space;
 
-public class ForceBasedMovable extends SpaceObject implements Movable, Thrustable {
+public class ForceBasedMovable extends BaseMovable implements Movable, Thrustable {
 
 	private float angularAccelleration;
 	private float maxAngularAccelleration;
 	private float angularDrag;
-	private float angularVelocity;
 	private float maxAngularVelocity;
 	private float thrust;
-	private float speed;
 	private float drag;
 	private float maxSpeed;
 	private float maxReverseSpeed;
@@ -19,14 +17,12 @@ public class ForceBasedMovable extends SpaceObject implements Movable, Thrustabl
 			float maxAngularAccelleration, float angularDrag, float angularVelocity, float maxAngularVelocity,
 			float thrust, float speed, float drag, float maxSpeed, float maxReverseSpeed, float maxForwardAcceleration,
 			float maxReverseAcceleration) {
-		super(x, y, degrees, width, height);
+		super(x, y, degrees, width, height, speed, angularVelocity);
 		this.angularAccelleration = angularAccelleration;
 		this.maxAngularAccelleration = maxAngularAccelleration;
 		this.angularDrag = angularDrag;
-		this.angularVelocity = angularVelocity;
 		this.maxAngularVelocity = maxAngularVelocity;
 		this.thrust = thrust;
-		this.speed = speed;
 		this.drag = drag;
 		this.maxSpeed = maxSpeed;
 		this.maxReverseSpeed = maxReverseSpeed;
@@ -81,11 +77,6 @@ public class ForceBasedMovable extends SpaceObject implements Movable, Thrustabl
 			}
 		}
 
-		super.moveAngleDegrees(angularVelocity * delta);
-		// shipAngleDegrees += angularVelocity * delta;
-		// shipAngleDegrees %= 360;
-		// updateRadians();
-
 		speed += thrust * delta;
 		if (speed > 0) {
 			speed -= drag * delta;
@@ -102,17 +93,7 @@ public class ForceBasedMovable extends SpaceObject implements Movable, Thrustabl
 			}
 		}
 
-		float radians = getAngleRadians();
-		float speedX = (float) (-Math.sin(radians) * speed);
-		float speedY = (float) (Math.cos(radians) * speed);
-
-		// if (angularVelocity != 0)
-//		System.out.println("ANGULAR: vel=" + angularVelocity + " acc=" + angularAccelleration + " degrees="
-//				+ super.getAngleDegrees());
-		// if (speed != 0)
-////		System.out.println("speed=" + speed + " speedX=" + speedX + " speedY=" + speedY + " Angle="
-//				+ super.getAngleDegrees() + " x=" + super.getX() + " y=" + super.getY());
-		super.movePosition(speedX * delta, speedY * delta);
+//		super.update(delta);
 	}
 
 	public float getAngularAccelleration() {
@@ -139,14 +120,6 @@ public class ForceBasedMovable extends SpaceObject implements Movable, Thrustabl
 		this.angularDrag = angularDrag;
 	}
 
-	public float getAngularVelocity() {
-		return angularVelocity;
-	}
-
-	public void setAngularVelocity(float angularVelocity) {
-		this.angularVelocity = angularVelocity;
-	}
-
 	public float getMaxAngularVelocity() {
 		return maxAngularVelocity;
 	}
@@ -155,20 +128,13 @@ public class ForceBasedMovable extends SpaceObject implements Movable, Thrustabl
 		this.maxAngularVelocity = maxAngularVelocity;
 	}
 
+	@Override
 	public float getThrust() {
 		return thrust;
 	}
 
 	public void setThrust(float thrust) {
 		this.thrust = thrust;
-	}
-
-	public float getSpeed() {
-		return speed;
-	}
-
-	public void setSpeed(float speed) {
-		this.speed = speed;
 	}
 
 	public float getDrag() {

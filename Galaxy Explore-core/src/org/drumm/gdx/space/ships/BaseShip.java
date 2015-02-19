@@ -5,12 +5,15 @@ import org.drumm.gdx.space.ForceBasedMovable;
 import org.drumm.gdx.space.Movable;
 import org.drumm.gdx.space.ThrustableDrawable;
 import org.drumm.gdx.space.common.HasDrawable;
+import org.drumm.gdx.space.weapons.HasWeapons;
+import org.drumm.gdx.space.weapons.guns.IGun;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 
-public class BaseShip implements HasDrawable{
+public class BaseShip implements HasDrawable, HasWeapons{
 	protected TextureRegion[] ships;
 	protected TextureRegion[] engines;
 	private int shipNumber;
@@ -33,9 +36,10 @@ public class BaseShip implements HasDrawable{
 	// private int angularDrag;
 	private Movable movable;
 	private Drawable drawable;
+	private Array<IGun> guns;
 
 	public BaseShip(TextureRegion[] ships, TextureRegion[] engines, int numShips, float shipScale) {
-
+		guns=new Array<IGun>();
 		this.ships = ships;
 		this.engines = engines;
 		// shipAngleDegrees = 0;
@@ -104,6 +108,35 @@ public class BaseShip implements HasDrawable{
 
 	public Movable getMovable() {
 		return movable;
+	}
+
+	@Override
+	public void enableFire() {
+		for (IGun gun:guns){
+			gun.enableFire();
+		}
+	}
+
+	@Override
+	public void disableFire() {
+		for (IGun gun:guns){
+			gun.disableFire();
+		}
+	}
+
+	@Override
+	public void addGun(IGun gun) {
+		guns.add(gun);
+	}
+
+	@Override
+	public void removeGun(IGun gun) {
+		guns.removeValue(gun, true);
+	}
+
+	@Override
+	public Array<IGun> getAllGuns() {
+		return new Array<IGun>(guns);
 	}
 
 	// public void setShipPosition(float x, float y) {

@@ -14,6 +14,11 @@ import org.drumm.gdx.space.common.RootManager;
 import org.drumm.gdx.space.ships.BaseShip;
 import org.drumm.gdx.space.ships.IShipManager;
 import org.drumm.gdx.space.ships.ShipManager;
+import org.drumm.gdx.space.weapons.ammunition.IDrawableWeapon;
+import org.drumm.gdx.space.weapons.ammunition.IWeaponDrawManager;
+import org.drumm.gdx.space.weapons.ammunition.WeaponDrawManager;
+import org.drumm.gdx.space.weapons.guns.IGun;
+import org.drumm.gdx.space.weapons.guns.Laser;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -54,7 +59,9 @@ public class GdxTest extends ApplicationAdapter {
 	@Override
 	public void create() {
 		ShipManager shipManager = new ShipManager();
-		RootManager.getInstance().setShipManager(shipManager);
+		WeaponDrawManager weaponManager=new WeaponDrawManager();
+		RootManager.setShipManager(shipManager);
+		RootManager.setWeaponDrawManager(weaponManager);
 		
 		
 		shipsTexture = new Texture(Gdx.files.internal("ships.png"));
@@ -83,6 +90,7 @@ public class GdxTest extends ApplicationAdapter {
 		 somgr = new SimpleSpaceObjectManager(planets);
 
 		playerShip = new BaseShip(shipTextures, engineTextures, numShips, shipScale);
+		playerShip.addGun(new Laser(playerShip));
 		BaseShip npcShip = new BaseShip(shipTextures, engineTextures, numShips, .125f);
 		Movable m = npcShip.getMovable();
 		if (m instanceof ForceBasedMovable){
@@ -207,10 +215,23 @@ public class GdxTest extends ApplicationAdapter {
 			shipNum %= numShips;
 			playerShip.setShipNumber(shipNum);
 		}
+		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+			playerShip.enableFire();
+		}else{
+			playerShip.disableFire();
+		}
 		IShipManager shipMgr = RootManager.getShipManager();
 		Array<? extends BaseShip> allShips = shipMgr.getAll();
 		for(BaseShip s:allShips){
 			s.getMovable().update(delta);
+			for(IGun gun:s.getAllGuns()){
+				gun.update(delta);
+			}
+		}
+		IWeaponDrawManager wpnMgr = RootManager.getWeaponDrawManager();
+		Array<? extends IDrawableWeapon> allProj = wpnMgr.getAll();
+		for(IDrawableWeapon proj:allProj){
+			proj.update(delta);
 		}
 
 	}
@@ -234,6 +255,11 @@ public class GdxTest extends ApplicationAdapter {
 		System.out.println(drawableShips.size);
 		for(BaseShip s:drawableShips){
 			s.getDrawable().draw(batch);
+		}
+		IWeaponDrawManager wpnMgr = RootManager.getWeaponDrawManager();
+		Array<? extends IDrawableWeapon> allProj = wpnMgr.getAll();
+		for(IDrawableWeapon proj:allProj){
+			proj.getDrawable().draw(batch);
 		}
 //		playerShip.getDrawable().draw(batch);
 //		batch.draw(planetTxr, -50, -50)
