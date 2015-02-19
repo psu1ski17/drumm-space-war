@@ -6,10 +6,14 @@ import java.util.List;
 import java.util.Random;
 
 import org.drumm.gdx.space.Drawable;
+import org.drumm.gdx.space.ForceBasedMovable;
 import org.drumm.gdx.space.Movable;
 import org.drumm.gdx.space.SimpleSpaceObjectManager;
 import org.drumm.gdx.space.bodies.BasePlanet;
+import org.drumm.gdx.space.common.RootManager;
 import org.drumm.gdx.space.ships.BaseShip;
+import org.drumm.gdx.space.ships.IShipManager;
+import org.drumm.gdx.space.ships.ShipManager;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -23,13 +27,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
 public class GdxTest extends ApplicationAdapter {
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
-	private TextureRegion[] ships;
-	private TextureRegion[] engines;
+	private TextureRegion[] shipTextures;
+	private TextureRegion[] engineTextures;
 	private Texture shipsTexture;
 	private int numShips;
 	private BaseShip playerShip;
@@ -47,17 +53,21 @@ public class GdxTest extends ApplicationAdapter {
 
 	@Override
 	public void create() {
+		ShipManager shipManager = new ShipManager();
+		RootManager.getInstance().setShipManager(shipManager);
+		
+		
 		shipsTexture = new Texture(Gdx.files.internal("ships.png"));
 		numShips = 10;
-		ships = new TextureRegion[numShips];
-		engines = new TextureRegion[numShips];
+		shipTextures = new TextureRegion[numShips];
+		engineTextures = new TextureRegion[numShips];
 		int shipWidth = 256;
 		int shipHeight = 256;
 		int engineWidth = shipWidth;
 		float shipScale = .25f;
 		for (int i = 0; i < numShips; i++) {
-			ships[i] = new TextureRegion(shipsTexture, 0, i * shipHeight, shipWidth, shipHeight);
-			engines[i] = new TextureRegion(shipsTexture, shipWidth, i * shipHeight, engineWidth, shipHeight);
+			shipTextures[i] = new TextureRegion(shipsTexture, 0, i * shipHeight, shipWidth, shipHeight);
+			engineTextures[i] = new TextureRegion(shipsTexture, shipWidth, i * shipHeight, engineWidth, shipHeight);
 		}
 		rand = new Random(52);
 
@@ -72,7 +82,45 @@ public class GdxTest extends ApplicationAdapter {
 		
 		 somgr = new SimpleSpaceObjectManager(planets);
 
-		playerShip = new BaseShip(ships, engines, numShips, shipScale);
+		playerShip = new BaseShip(shipTextures, engineTextures, numShips, shipScale);
+		BaseShip npcShip = new BaseShip(shipTextures, engineTextures, numShips, .125f);
+		Movable m = npcShip.getMovable();
+		if (m instanceof ForceBasedMovable){
+			ForceBasedMovable fbm=(ForceBasedMovable) m;
+			fbm.setAngularVelocity(25);
+			fbm.setSpeed(50);
+			fbm.setDrag(0);
+			fbm.setAngularDrag(0);
+		}
+		npcShip.setShipNumber(5);
+		BaseShip npcShip2 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
+		m = npcShip2.getMovable();
+		m.setX(-150);
+		m.setY(-250);
+		if (m instanceof ForceBasedMovable){
+			ForceBasedMovable fbm=(ForceBasedMovable) m;
+			fbm.setAngularVelocity(6);
+			fbm.setSpeed(50);
+			fbm.setDrag(0);
+			fbm.setAngularDrag(0);
+		}
+		npcShip2.setShipNumber(2);
+		BaseShip npcShip3 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
+		m = npcShip3.getMovable();
+		m.setX(300);
+		m.setY(-250);
+		if (m instanceof ForceBasedMovable){
+			ForceBasedMovable fbm=(ForceBasedMovable) m;
+			fbm.setAngularVelocity(200);
+			fbm.setSpeed(200);
+			fbm.setDrag(0);
+			fbm.setAngularDrag(0);
+		}
+		npcShip3.setShipNumber(9);
+		shipManager.add(playerShip);
+		shipManager.add(npcShip);
+		shipManager.add(npcShip2);
+		shipManager.add(npcShip3);
 		font = new BitmapFont();
 
 		// load the drop sound effect and the rain background "music"
@@ -159,7 +207,11 @@ public class GdxTest extends ApplicationAdapter {
 			shipNum %= numShips;
 			playerShip.setShipNumber(shipNum);
 		}
-		pos.update(delta);
+		IShipManager shipMgr = RootManager.getShipManager();
+		Array<? extends BaseShip> allShips = shipMgr.getAll();
+		for(BaseShip s:allShips){
+			s.getMovable().update(delta);
+		}
 
 	}
 
@@ -175,7 +227,15 @@ public class GdxTest extends ApplicationAdapter {
 			Drawable d = p.getDrawable();
 			d.draw(batch);
 		}
-		playerShip.getDrawable().draw(batch);
+		IShipManager shipMgr = RootManager.getShipManager();
+		float left = camera.position.x - camera.viewportWidth / 2 ;
+		float top = camera.position.y - camera.viewportHeight / 2 ;
+		Array<? extends BaseShip> drawableShips = shipMgr.getInRect(new Rectangle(left, top, camera.viewportWidth, camera.viewportHeight));
+		System.out.println(drawableShips.size);
+		for(BaseShip s:drawableShips){
+			s.getDrawable().draw(batch);
+		}
+//		playerShip.getDrawable().draw(batch);
 //		batch.draw(planetTxr, -50, -50)
 		
 		// System.out.println(camera.position);

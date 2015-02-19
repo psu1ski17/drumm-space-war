@@ -3,10 +3,11 @@ package org.drumm.gdx.space.bodies;
 import org.drumm.gdx.space.Drawable;
 import org.drumm.gdx.space.SimpleDrawable;
 import org.drumm.gdx.space.SpaceObject;
+import org.drumm.gdx.space.common.HasDrawable;
 
 import com.badlogic.gdx.graphics.Texture;
 
-public class BasePlanet extends SpaceObject{
+public class BasePlanet extends SpaceObject implements HasDrawable{
 
 	private Texture texture;
 	private Drawable drawable;

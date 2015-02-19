@@ -1,5 +1,7 @@
 package org.drumm.gdx.space.weapons.ammunition;
 
-public class Ammunition {
+import org.drumm.gdx.space.Drawable;
 
+public abstract class Ammunition implements Drawable{
+	
 }

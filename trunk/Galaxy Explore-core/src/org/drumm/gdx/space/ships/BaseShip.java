@@ -4,12 +4,13 @@ import org.drumm.gdx.space.Drawable;
 import org.drumm.gdx.space.ForceBasedMovable;
 import org.drumm.gdx.space.Movable;
 import org.drumm.gdx.space.ThrustableDrawable;
+import org.drumm.gdx.space.common.HasDrawable;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
-public class BaseShip {
+public class BaseShip implements HasDrawable{
 	protected TextureRegion[] ships;
 	protected TextureRegion[] engines;
 	private int shipNumber;
@@ -73,6 +74,7 @@ public class BaseShip {
 	//
 	// }
 
+	@Override
 	public Drawable getDrawable() {
 		return drawable;
 	}
@@ -95,6 +97,9 @@ public class BaseShip {
 		int height = ships[shipNumber].getRegionHeight();
 		movable.setWidth(width*shipScale);
 		movable.setHeight(height*shipScale);
+		if (drawable instanceof ThrustableDrawable){
+			((ThrustableDrawable) drawable).setShipNumber(shipNumber);
+		}
 	}
 
 	public Movable getMovable() {
