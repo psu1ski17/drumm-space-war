@@ -61,7 +61,7 @@ public class BaseShip implements HasDrawable, HasWeapons{
 		float maxReverseSpeed = 0;
 		float angularVelocity = 0;
 		float angularDrag = 2000;
-		float maxAngularVelocity = 150;
+		float maxAngularVelocity = 5000;
 		float maxAngularAccelleration = 2000;
 		float angularAccelleration = 0;
 		float maxFowardAcceleration=500f;

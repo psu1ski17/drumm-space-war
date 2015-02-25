@@ -12,6 +12,12 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 	private float maxReverseSpeed;
 	private float maxFowardAcceleration;
 	private float maxReverseAcceleration;
+	private float destAngle;
+	private float destX;
+	private float destY;
+	private boolean activeMoveTo;
+	private boolean activeTurnTo;
+	private boolean cheatTurnTo = true;
 
 	public ForceBasedMovable(float x, float y, float degrees, float width, float height, float angularAccelleration,
 			float maxAngularAccelleration, float angularDrag, float angularVelocity, float maxAngularVelocity,
@@ -41,7 +47,7 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 	}
 
 	@Override
-	public void turnLeft(float magnitude) {
+	public void turnRight(float magnitude) {
 		if (magnitude == 0) {
 			angularAccelleration = 0;
 		} else {
@@ -50,7 +56,7 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 	}
 
 	@Override
-	public void turnRight(float magnitude) {
+	public void turnLeft(float magnitude) {
 		if (magnitude == 0) {
 			angularAccelleration = 0;
 		} else {
@@ -60,6 +66,7 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 
 	@Override
 	public void update(float delta) {
+		doAutopilot();
 		super.update(delta);
 		angularVelocity += angularAccelleration * delta;
 		if (angularVelocity > 0) {
@@ -93,7 +100,63 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 			}
 		}
 
-//		super.update(delta);
+		// super.update(delta);
+	}
+
+	private void doAutopilot() {
+		boolean doTurnTo = activeTurnTo;
+		float angleTo = destAngle;
+		if (activeMoveTo) {
+			float angDiff = angDist(degrees, angleTo);
+			angleTo = angleTo(destX, destY);
+			System.out.println("angle to:" + angleTo + " from " + x + "," + y + " to: " + destX + "," + destY
+					+ "current:" + degrees);
+			float dist = dist(destX, destY, this.x, this.y);
+
+			if (Math.abs(dist) < 0.01) {
+				activeMoveTo = false;
+				x = destX;
+				y = destY;
+				accelerate(0);
+			} else {
+				doTurnTo = true;
+				float targetVelocity = dist * 2;
+				float velDiff = targetVelocity - speed;
+				float neededThurst = velDiff / maxFowardAcceleration * 5;
+				if (angDiff < 45) {
+					accelerate(neededThurst);
+				} else {
+					accelerate(-0.5f);
+				}
+			}
+
+		}
+		// positive angular velocity means turning right
+		if (doTurnTo) {
+			// Do turn to if there is an active turn to command OR the move to
+			// needs it.
+			if (cheatTurnTo) {
+				degrees = angleTo;
+			} else {
+				float angDiff = angDist(degrees, angleTo);
+				if (Math.abs(angDiff) < 0.001) {
+					activeTurnTo = false;
+					degrees = angleTo;
+					angularVelocity = 0;
+					turnLeft(0);
+				} else {
+					float targetVelocity = angDiff * 2;
+					float velDiff = Math.abs(targetVelocity - angularVelocity);
+					float neededThrust = velDiff / maxAngularAccelleration * 5;
+					if (targetVelocity > angularVelocity) {
+						turnRight(neededThrust);
+					} else if (targetVelocity < angularVelocity) {
+						turnLeft(neededThrust);
+					}
+				}
+			}
+		}
+
 	}
 
 	public float getAngularAccelleration() {
@@ -159,5 +222,47 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 
 	public void setMaxReverseSpeed(float maxReverseSpeed) {
 		this.maxReverseSpeed = maxReverseSpeed;
+	}
+
+	@Override
+	public void moveTo(float x, float y) {
+		activeMoveTo = true;
+		activeTurnTo = false;
+		destX = x;
+		destY = y;
+	}
+
+	private float angleTo(float x, float y) {
+		float dx = (x - this.x);
+		float dy = (y - this.y);
+		float m = dx / dy;
+		float angleToRadians = (float) Math.atan(m);
+		float angleTo = (float) (angleToRadians * 180 / Math.PI);
+		if (dy < 0) {
+			angleTo += 180;
+		}
+		return angleTo;
+	}
+
+	private float dist(float x, float y, float x2, float y2) {
+		float distSquared = (x2 - x) * (x2 - x) + (y2 - y) * (y2 - y);
+		float dist = (float) Math.sqrt(distSquared);
+		return dist;
+	}
+
+	private float angDist(float ang1, float ang2) {
+		float a = ang2 - ang1;
+		a = (a + 180f) % 360f - 180f;
+		return a;
+	}
+
+	@Override
+	public void turnTo(float angle) {
+		activeMoveTo = false;
+		activeTurnTo = true;
+		destAngle = angle;
+		if (cheatTurnTo) {
+			degrees = angle;
+		}
 	}
 }
