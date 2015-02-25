@@ -29,7 +29,7 @@ public class BaseMovable extends SpaceObject{
 	public void update(float delta){
 //		super.update(delta);
 		float radians = getAngleRadians();
-		float speedX = (float) (-Math.sin(radians) * speed);
+		float speedX = (float) (Math.sin(radians) * speed);
 		float speedY = (float) (Math.cos(radians) * speed);
 		super.moveAngleDegrees(angularVelocity * delta);
 		super.movePosition(speedX * delta, speedY * delta);

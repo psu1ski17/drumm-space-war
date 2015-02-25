@@ -31,7 +31,7 @@ public class ThrustableDrawable extends SimpleDrawable {
 		if (movable instanceof Thrustable){
 			thrust=((Thrustable) movable).getThrust();
 		}		
-		float shipAngleDegrees=movable.getAngleDegrees();
+		float shipAngleDegrees=-movable.getAngleDegrees();
 //		batch.draw(ships[shipNumber], x, y, width / 2, height / 2, width, height, shipScale, shipScale,
 //				shipAngleDegrees - 90f, false);
 		if (thrust > 0) {

@@ -93,12 +93,15 @@ public class GdxTest extends ApplicationAdapter {
 		playerShip.addGun(new Laser(playerShip));
 		BaseShip npcShip = new BaseShip(shipTextures, engineTextures, numShips, .125f);
 		Movable m = npcShip.getMovable();
+		m.setX(25);
+		m.setY(100);
 		if (m instanceof ForceBasedMovable){
 			ForceBasedMovable fbm=(ForceBasedMovable) m;
-			fbm.setAngularVelocity(25);
-			fbm.setSpeed(50);
+			fbm.setAngularVelocity(0);
+			fbm.setSpeed(0);
 			fbm.setDrag(0);
 			fbm.setAngularDrag(0);
+			fbm.moveTo(50, 50);
 		}
 		npcShip.setShipNumber(5);
 		BaseShip npcShip2 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
@@ -144,6 +147,7 @@ public class GdxTest extends ApplicationAdapter {
 		resetPlayerShip();
 		Movable pos = playerShip.getMovable();
 		camera.position.set(pos.getCenterX(), pos.getCenterY(), 0);
+		
 		camera.update();
 
 		int numStars = 300;
@@ -179,6 +183,7 @@ public class GdxTest extends ApplicationAdapter {
 		 touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 		 System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
 		 camera.unproject(touchPos);
+		
 		 System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
 		// shipAngleRad = (float) Math.atan2(touchPos.y - ship.y - ship.height /
 		// 2, touchPos.x - ship.x - ship.width
@@ -335,6 +340,7 @@ public class GdxTest extends ApplicationAdapter {
 		Movable pos = playerShip.getMovable();
 		float x = Math.round(pos.getCenterX());
 		float y = Math.round(pos.getCenterY());
-		font.draw(batch, fps + " fps      X=" + x + " Y=" + y, 5 - screenWidth / 2, 20 - screenHeight / 2);
+		float angle=Math.round(pos.getAngleDegrees());
+		font.draw(batch, fps + " fps      X=" + x + " Y=" + y+" Angle="+angle, 5 - screenWidth / 2, 20 - screenHeight / 2);
 	}
 }

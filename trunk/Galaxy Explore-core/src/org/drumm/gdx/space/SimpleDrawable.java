@@ -33,7 +33,7 @@ public class SimpleDrawable implements Drawable {
 		float y = spaceObject.getY();
 		float width = spaceObject.getWidth();
 		float height = spaceObject.getHeight();
-		float angle = spaceObject.getAngleDegrees();
+		float angle = -spaceObject.getAngleDegrees();
 		if (texture != null) {
 			batch.draw(texture, x, y, width / 2, height / 2, width, height, 1, 1, angle, 0, 0, texture.getWidth(),
 					texture.getHeight(), false, false);
