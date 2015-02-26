@@ -1,11 +1,14 @@
 package org.drumm.gdx.space;
 
-public class BaseMovable extends SpaceObject{
+import org.drumm.gdx.space.common.Updateable;
+
+public class BaseMovable implements Updateable {
 	protected float angularVelocity;
 	protected float speed;
+	protected ISpaceObject spaceObject;
 
-	public BaseMovable(float x, float y, float degrees, float width, float height, float speed, float angularVelocity) {
-		super(x, y, degrees, width, height);
+	public BaseMovable(ISpaceObject spaceObject, float speed, float angularVelocity) {
+		this.spaceObject=spaceObject;
 		this.speed=speed;
 		this.angularVelocity=angularVelocity;
 	}
@@ -27,11 +30,10 @@ public class BaseMovable extends SpaceObject{
 	
 	@Override
 	public void update(float delta){
-//		super.update(delta);
-		float radians = getAngleRadians();
+		float radians = spaceObject.getAngleRadians();
 		float speedX = (float) (Math.sin(radians) * speed);
 		float speedY = (float) (Math.cos(radians) * speed);
-		super.moveAngleDegrees(angularVelocity * delta);
-		super.movePosition(speedX * delta, speedY * delta);
+		spaceObject.moveAngleDegrees(angularVelocity * delta);
+		spaceObject.movePosition(speedX * delta, speedY * delta);
 	}
 }

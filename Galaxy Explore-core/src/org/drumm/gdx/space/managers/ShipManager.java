@@ -1,8 +1,8 @@
-package org.drumm.gdx.space.ships;
+package org.drumm.gdx.space.managers;
 
 import java.util.List;
 
-import org.drumm.gdx.space.common.BaseSimpleDrawableManager;
+import org.drumm.gdx.space.ships.BaseShip;
 
 import com.badlogic.gdx.math.Rectangle;
 

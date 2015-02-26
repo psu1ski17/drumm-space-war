@@ -1,6 +1,6 @@
 package org.drumm.gdx.space;
 
-public class ForceBasedMovable extends BaseMovable implements Movable, Thrustable {
+public class ForceBasedMovable extends BaseMovable implements ShipController,Thrustable {
 
 	private float angularAccelleration;
 	private float maxAngularAccelleration;
@@ -19,11 +19,11 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 	private boolean activeTurnTo;
 	private boolean cheatTurnTo = true;
 
-	public ForceBasedMovable(float x, float y, float degrees, float width, float height, float angularAccelleration,
+	public ForceBasedMovable(ISpaceObject object, float angularAccelleration,
 			float maxAngularAccelleration, float angularDrag, float angularVelocity, float maxAngularVelocity,
 			float thrust, float speed, float drag, float maxSpeed, float maxReverseSpeed, float maxForwardAcceleration,
 			float maxReverseAcceleration) {
-		super(x, y, degrees, width, height, speed, angularVelocity);
+		super(object, speed, angularVelocity);
 		this.angularAccelleration = angularAccelleration;
 		this.maxAngularAccelleration = maxAngularAccelleration;
 		this.angularDrag = angularDrag;
@@ -104,19 +104,23 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 	}
 
 	private void doAutopilot() {
+		final float degrees=spaceObject.getAngleDegrees();
+		final float x=spaceObject.getCenterX();
+		final float y =spaceObject.getCenterY();
 		boolean doTurnTo = activeTurnTo;
 		float angleTo = destAngle;
 		if (activeMoveTo) {
-			float angDiff = angDist(degrees, angleTo);
 			angleTo = angleTo(destX, destY);
-			System.out.println("angle to:" + angleTo + " from " + x + "," + y + " to: " + destX + "," + destY
+			float angDiff = angDist(degrees, angleTo);
+			if (angDiff>45){
+			System.out.println("anglediff= "+angDiff+ " angle to:" + angleTo + " from " + x + ", " + y + " to: " + destX + "," + destY
 					+ "current:" + degrees);
-			float dist = dist(destX, destY, this.x, this.y);
+			}
+			float dist = dist(destX, destY, x, y);
 
 			if (Math.abs(dist) < 0.01) {
 				activeMoveTo = false;
-				x = destX;
-				y = destY;
+				spaceObject.setCenterPosition(destX, destY);
 				accelerate(0);
 			} else {
 				doTurnTo = true;
@@ -136,12 +140,12 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 			// Do turn to if there is an active turn to command OR the move to
 			// needs it.
 			if (cheatTurnTo) {
-				degrees = angleTo;
+				spaceObject.setAngleDegrees(angleTo);
 			} else {
 				float angDiff = angDist(degrees, angleTo);
 				if (Math.abs(angDiff) < 0.001) {
 					activeTurnTo = false;
-					degrees = angleTo;
+					spaceObject.setAngleDegrees(angleTo);
 					angularVelocity = 0;
 					turnLeft(0);
 				} else {
@@ -233,8 +237,8 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 	}
 
 	private float angleTo(float x, float y) {
-		float dx = (x - this.x);
-		float dy = (y - this.y);
+		float dx = (x - spaceObject.getCenterX());
+		float dy = (y - spaceObject.getCenterY());
 		float m = dx / dy;
 		float angleToRadians = (float) Math.atan(m);
 		float angleTo = (float) (angleToRadians * 180 / Math.PI);
@@ -262,7 +266,13 @@ public class ForceBasedMovable extends BaseMovable implements Movable, Thrustabl
 		activeTurnTo = true;
 		destAngle = angle;
 		if (cheatTurnTo) {
-			degrees = angle;
+			spaceObject.setAngleDegrees(angle);
 		}
+	}
+
+	@Override
+	public void overrideAuto() {
+		activeMoveTo=false;
+		activeTurnTo=false;
 	}
 }

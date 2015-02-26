@@ -2,18 +2,19 @@ package org.drumm.gdx.space.ships;
 
 import org.drumm.gdx.space.Drawable;
 import org.drumm.gdx.space.ForceBasedMovable;
-import org.drumm.gdx.space.Movable;
+import org.drumm.gdx.space.ShipController;
+import org.drumm.gdx.space.SpaceObject;
 import org.drumm.gdx.space.ThrustableDrawable;
-import org.drumm.gdx.space.common.HasDrawable;
+import org.drumm.gdx.space.common.Updateable;
+import org.drumm.gdx.space.ships.Shootable.HasShootable;
 import org.drumm.gdx.space.weapons.HasWeapons;
 import org.drumm.gdx.space.weapons.guns.IGun;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-public class BaseShip implements HasDrawable, HasWeapons{
+public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasShootable, Updateable{
 	protected TextureRegion[] ships;
 	protected TextureRegion[] engines;
 	private int shipNumber;
@@ -34,9 +35,10 @@ public class BaseShip implements HasDrawable, HasWeapons{
 	// private float maxAngularAccelleration;
 	// private float angularAccelleration;
 	// private int angularDrag;
-	private Movable movable;
+	private ShipController controller;
 	private Drawable drawable;
 	private Array<IGun> guns;
+	private Shootable shootable;
 
 	public BaseShip(TextureRegion[] ships, TextureRegion[] engines, int numShips, float shipScale) {
 		guns=new Array<IGun>();
@@ -48,48 +50,24 @@ public class BaseShip implements HasDrawable, HasWeapons{
 		this.numShips = numShips;
 		this.shipScale = shipScale;
 
-		float x = 0;
-		float y = 0;
-		float angularDegrees=0;
-		float width = 0;
-		float height = 0;
-
 		float thrust=0;
 		float drag = 00f;
 		float speed = 0;
-		float maxSpeed = 500;
+		float maxSpeed = 300;
 		float maxReverseSpeed = 0;
 		float angularVelocity = 0;
 		float angularDrag = 2000;
-		float maxAngularVelocity = 5000;
+		float maxAngularVelocity = 250;
 		float maxAngularAccelleration = 2000;
 		float angularAccelleration = 0;
 		float maxFowardAcceleration=500f;
 		float maxReverseAcceleration=1000f;
-		this.movable = new ForceBasedMovable(x, y, angularDegrees, width*shipScale, height*shipScale, angularAccelleration, maxAngularAccelleration,
+		this.controller = new ForceBasedMovable(this, angularAccelleration, maxAngularAccelleration,
 				angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
-		this.drawable=new ThrustableDrawable(movable, ships, engines);
+		this.drawable=new ThrustableDrawable(this,controller, ships, engines);
+		this.shootable=new BaseShootable(this, 100);
 		setShipNumber(0);
-
 	}
-
-	// private void updateRadians() {
-	// shipAngleRad = (float) (shipAngleDegrees * Math.PI / 180.0);
-	//
-	// }
-
-	@Override
-	public Drawable getDrawable() {
-		return drawable;
-	}
-
-	// public void turnLeft(float magnitude) {
-	// angularAccelleration = +magnitude * maxAngularAccelleration+angularDrag;
-	// }
-	//
-	// public void turnRight(float magnitude) {
-	// angularAccelleration = -magnitude * maxAngularAccelleration-angularDrag;
-	// }
 
 	public int getShipNumber() {
 		return shipNumber;
@@ -99,15 +77,11 @@ public class BaseShip implements HasDrawable, HasWeapons{
 		this.shipNumber = shipNumber;
 		int width = ships[shipNumber].getRegionWidth();
 		int height = ships[shipNumber].getRegionHeight();
-		movable.setWidth(width*shipScale);
-		movable.setHeight(height*shipScale);
+		setWidth(width*shipScale);
+		setHeight(height*shipScale);
 		if (drawable instanceof ThrustableDrawable){
 			((ThrustableDrawable) drawable).setShipNumber(shipNumber);
 		}
-	}
-
-	public Movable getMovable() {
-		return movable;
 	}
 
 	@Override
@@ -137,6 +111,31 @@ public class BaseShip implements HasDrawable, HasWeapons{
 	@Override
 	public Array<IGun> getAllGuns() {
 		return new Array<IGun>(guns);
+	}
+
+	@Override
+	public Shootable getShootable() {
+		return shootable;
+	}
+
+	@Override
+	public void doSubUpdate(float delta) {
+		super.doSubUpdate(delta);
+		for(IGun gun:guns){
+			gun.update(delta);
+		}
+		shootable.update(delta);
+		controller.update(delta);
+	}
+
+	@Override
+	public void draw(SpriteBatch batch) {
+		drawable.draw(batch);
+		shootable.draw(batch);
+	}
+
+	public ShipController getController() {
+		return controller;
 	}
 
 	// public void setShipPosition(float x, float y) {
