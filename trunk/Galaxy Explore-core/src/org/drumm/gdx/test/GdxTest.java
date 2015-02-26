@@ -1,23 +1,17 @@
 package org.drumm.gdx.test;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.drumm.gdx.space.Drawable;
 import org.drumm.gdx.space.ForceBasedMovable;
-import org.drumm.gdx.space.Movable;
-import org.drumm.gdx.space.SimpleSpaceObjectManager;
+import org.drumm.gdx.space.ShipController;
 import org.drumm.gdx.space.bodies.BasePlanet;
-import org.drumm.gdx.space.common.RootManager;
+import org.drumm.gdx.space.managers.PlanetManager;
+import org.drumm.gdx.space.managers.RootManager;
+import org.drumm.gdx.space.managers.ShipManager;
 import org.drumm.gdx.space.ships.BaseShip;
-import org.drumm.gdx.space.ships.IShipManager;
-import org.drumm.gdx.space.ships.ShipManager;
-import org.drumm.gdx.space.weapons.ammunition.IDrawableWeapon;
-import org.drumm.gdx.space.weapons.ammunition.IWeaponDrawManager;
 import org.drumm.gdx.space.weapons.ammunition.WeaponDrawManager;
-import org.drumm.gdx.space.weapons.guns.IGun;
 import org.drumm.gdx.space.weapons.guns.Laser;
 
 import com.badlogic.gdx.ApplicationAdapter;
@@ -34,7 +28,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 
 public class GdxTest extends ApplicationAdapter {
 	private OrthographicCamera camera;
@@ -53,17 +46,17 @@ public class GdxTest extends ApplicationAdapter {
 	private float fpsCumulativeDelta;
 	private int fpsNumFrame;
 	private float fps;
-	private org.drumm.gdx.space.SimpleSpaceObjectManager somgr;
 	private Texture planetTxr;
 
 	@Override
 	public void create() {
 		ShipManager shipManager = new ShipManager();
-		WeaponDrawManager weaponManager=new WeaponDrawManager();
+		WeaponDrawManager weaponManager = new WeaponDrawManager();
+		PlanetManager planetManager = new PlanetManager();
 		RootManager.setShipManager(shipManager);
 		RootManager.setWeaponDrawManager(weaponManager);
-		
-		
+		RootManager.setPlanetManager(planetManager);
+
 		shipsTexture = new Texture(Gdx.files.internal("ships.png"));
 		numShips = 10;
 		shipTextures = new TextureRegion[numShips];
@@ -80,23 +73,20 @@ public class GdxTest extends ApplicationAdapter {
 
 		screenWidth = 800;
 		screenHeight = 480;
-		
-		ArrayList<BasePlanet> planets = new ArrayList<BasePlanet>();
-		 planetTxr = new Texture(Gdx.files.internal("planet1.png"));
-		planets.add(new BasePlanet(0, 0, 0, 50, 50, planetTxr));
-		planets.add(new BasePlanet(1000, 1500, 37, 75, 75, planetTxr));
-		planets.add(new BasePlanet(1000, -1000, 194, 100, 100, planetTxr));
-		
-		 somgr = new SimpleSpaceObjectManager(planets);
+
+		planetTxr = new Texture(Gdx.files.internal("planet1.png"));
+		planetManager.add(new BasePlanet(0, 0, 0, 50, 50, planetTxr));
+		planetManager.add(new BasePlanet(1000, 1500, 37, 75, 75, planetTxr));
+		planetManager.add(new BasePlanet(1000, -1000, 194, 100, 100, planetTxr));
 
 		playerShip = new BaseShip(shipTextures, engineTextures, numShips, shipScale);
 		playerShip.addGun(new Laser(playerShip));
 		BaseShip npcShip = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		Movable m = npcShip.getMovable();
-		m.setX(25);
-		m.setY(100);
-		if (m instanceof ForceBasedMovable){
-			ForceBasedMovable fbm=(ForceBasedMovable) m;
+		npcShip.setX(25);
+		npcShip.setY(100);
+		ShipController m = npcShip.getController();
+		if (m instanceof ForceBasedMovable) {
+			ForceBasedMovable fbm = (ForceBasedMovable) m;
 			fbm.setAngularVelocity(0);
 			fbm.setSpeed(0);
 			fbm.setDrag(0);
@@ -105,11 +95,11 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		npcShip.setShipNumber(5);
 		BaseShip npcShip2 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		m = npcShip2.getMovable();
-		m.setX(-150);
-		m.setY(-250);
-		if (m instanceof ForceBasedMovable){
-			ForceBasedMovable fbm=(ForceBasedMovable) m;
+		m = npcShip2.getController();
+		npcShip2.setX(-150);
+		npcShip2.setY(-250);
+		if (m instanceof ForceBasedMovable) {
+			ForceBasedMovable fbm = (ForceBasedMovable) m;
 			fbm.setAngularVelocity(6);
 			fbm.setSpeed(50);
 			fbm.setDrag(0);
@@ -117,11 +107,11 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		npcShip2.setShipNumber(2);
 		BaseShip npcShip3 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		m = npcShip3.getMovable();
-		m.setX(300);
-		m.setY(-250);
-		if (m instanceof ForceBasedMovable){
-			ForceBasedMovable fbm=(ForceBasedMovable) m;
+		m = npcShip3.getController();
+		npcShip3.setX(300);
+		npcShip3.setY(-250);
+		if (m instanceof ForceBasedMovable) {
+			ForceBasedMovable fbm = (ForceBasedMovable) m;
 			fbm.setAngularVelocity(200);
 			fbm.setSpeed(200);
 			fbm.setDrag(0);
@@ -145,9 +135,8 @@ public class GdxTest extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, screenWidth, screenHeight);
 		resetPlayerShip();
-		Movable pos = playerShip.getMovable();
-		camera.position.set(pos.getCenterX(), pos.getCenterY(), 0);
-		
+		camera.position.set(playerShip.getCenterX(), playerShip.getCenterY(), 0);
+
 		camera.update();
 
 		int numStars = 300;
@@ -162,8 +151,7 @@ public class GdxTest extends ApplicationAdapter {
 		processInputAndUpdate(delta);
 		Gdx.gl.glClearColor(0f, 0f, 0f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		Movable pos = playerShip.getMovable();
-		camera.position.set(pos.getCenterX(), pos.getCenterY(), 0);
+		camera.position.set(playerShip.getCenterX(), playerShip.getCenterY(), 0);
 		camera.update();
 
 		drawBackground();
@@ -177,43 +165,49 @@ public class GdxTest extends ApplicationAdapter {
 	}
 
 	private void processInputAndUpdate(float delta) {
-		Movable pos = playerShip.getMovable();
-		 if (Gdx.input.isTouched()) {
-		 Vector3 touchPos = new Vector3();
-		 touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-		 System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
-		 camera.unproject(touchPos);
-		
-		 System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
-		// shipAngleRad = (float) Math.atan2(touchPos.y - ship.y - ship.height /
-		// 2, touchPos.x - ship.x - ship.width
-		// / 2);
-		// System.out.println(touchPos.x - ship.x - ship.width / 2);
-		// System.out.println(touchPos.y - ship.y - ship.height / 2);
-		// shipAngleDegrees = (float) (shipAngleRad * 180.0 / Math.PI);
-		// // ship.x=touchPos.x;
-		// // ship.y=touchPos.y;
-		// System.out.println("touched: " + touchPos.x + ", " + touchPos.y +
-		// " ship: " + ship.x + ", " + ship.y
-		// + " degrees=" + shipAngleDegrees);
-		 }
+		ShipController controller = playerShip.getController();
+		if (Gdx.input.isTouched()) {
+			Vector3 touchPos = new Vector3();
+			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
+			camera.unproject(touchPos);
+
+			System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
+			controller.moveTo(touchPos.x, touchPos.y);
+			// shipAngleRad = (float) Math.atan2(touchPos.y - ship.y -
+			// ship.height /
+			// 2, touchPos.x - ship.x - ship.width
+			// / 2);
+			// System.out.println(touchPos.x - ship.x - ship.width / 2);
+			// System.out.println(touchPos.y - ship.y - ship.height / 2);
+			// shipAngleDegrees = (float) (shipAngleRad * 180.0 / Math.PI);
+			// // ship.x=touchPos.x;
+			// // ship.y=touchPos.y;
+			// System.out.println("touched: " + touchPos.x + ", " + touchPos.y +
+			// " ship: " + ship.x + ", " + ship.y
+			// + " degrees=" + shipAngleDegrees);
+		}
 		if (Gdx.input.isKeyPressed(Keys.R)) {
 			resetPlayerShip();
 		}
 		float magnitude = 1;
 		if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-			pos.turnLeft(magnitude);
+			controller.overrideAuto();
+			controller.turnLeft(magnitude);
 		} else if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-			pos.turnRight(magnitude);
+			controller.overrideAuto();
+			controller.turnRight(magnitude);
 		} else {
-			pos.turnLeft(0);
+			controller.turnLeft(0);
 		}
 		if (Gdx.input.isKeyPressed(Keys.UP)) {
-			pos.accelerate(magnitude);
+			controller.overrideAuto();
+			controller.accelerate(magnitude);
 		} else if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-			pos.accelerate(-magnitude);
+			controller.overrideAuto();
+			controller.accelerate(-magnitude);
 		} else {
-			pos.accelerate(0);
+			controller.accelerate(0);
 		}
 		if (Gdx.input.isKeyJustPressed(Keys.TAB)) {
 			shipNum++;
@@ -222,56 +216,22 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
 			playerShip.enableFire();
-		}else{
+		} else {
 			playerShip.disableFire();
 		}
-		IShipManager shipMgr = RootManager.getShipManager();
-		Array<? extends BaseShip> allShips = shipMgr.getAll();
-		for(BaseShip s:allShips){
-			s.getMovable().update(delta);
-			for(IGun gun:s.getAllGuns()){
-				gun.update(delta);
-			}
-		}
-		IWeaponDrawManager wpnMgr = RootManager.getWeaponDrawManager();
-		Array<? extends IDrawableWeapon> allProj = wpnMgr.getAll();
-		for(IDrawableWeapon proj:allProj){
-			proj.update(delta);
-		}
 
+		RootManager.updateAll(delta);
 	}
 
 	private void resetPlayerShip() {
-		playerShip.getMovable().setCenterPosition(0, 0);
+		playerShip.setCenterPosition(0, 0);
 	}
 
 	private void doBatch() {
-		
-		Iterator<BasePlanet> itr = somgr.getPlanetsInRect(null);
-		while(itr.hasNext()){
-			BasePlanet p = itr.next();
-			Drawable d = p.getDrawable();
-			d.draw(batch);
-		}
-		IShipManager shipMgr = RootManager.getShipManager();
-		float left = camera.position.x - camera.viewportWidth / 2 ;
-		float top = camera.position.y - camera.viewportHeight / 2 ;
-		Array<? extends BaseShip> drawableShips = shipMgr.getInRect(new Rectangle(left, top, camera.viewportWidth, camera.viewportHeight));
-		System.out.println(drawableShips.size);
-		for(BaseShip s:drawableShips){
-			s.getDrawable().draw(batch);
-		}
-		IWeaponDrawManager wpnMgr = RootManager.getWeaponDrawManager();
-		Array<? extends IDrawableWeapon> allProj = wpnMgr.getAll();
-		for(IDrawableWeapon proj:allProj){
-			proj.getDrawable().draw(batch);
-		}
-//		playerShip.getDrawable().draw(batch);
-//		batch.draw(planetTxr, -50, -50)
-		
-		// System.out.println(camera.position);
-		// System.out.println(playerShip.getMovable().getCenterX()+", "+playerShip.getMovable().getCenterY());
-
+		float left = camera.position.x - camera.viewportWidth / 2;
+		float top = camera.position.y - camera.viewportHeight / 2;
+		Rectangle viewportRect = new Rectangle(left, top, camera.viewportWidth, camera.viewportHeight);
+		RootManager.drawAll(batch, viewportRect);
 	}
 
 	private void initStars(int numStars) {
@@ -293,7 +253,7 @@ public class GdxTest extends ApplicationAdapter {
 
 		sr.setProjectionMatrix(camera.combined);
 		sr.begin(ShapeType.Line);
-		sr.circle(0, 0, 50);
+		sr.circle(0, 0, 25);
 		sr.end();
 
 		sr.begin(ShapeType.Line);
@@ -332,15 +292,15 @@ public class GdxTest extends ApplicationAdapter {
 		fpsCumulativeDelta += delta;
 		fpsNumFrame++;
 		if (fpsCumulativeDelta > 2) {
-			int fpsInt = (int) (fpsNumFrame / fpsCumulativeDelta*10);
-			fps= (fpsInt/10.0f);
+			int fpsInt = (int) (fpsNumFrame / fpsCumulativeDelta * 10);
+			fps = (fpsInt / 10.0f);
 			fpsCumulativeDelta = 0;
 			fpsNumFrame = 0;
 		}
-		Movable pos = playerShip.getMovable();
-		float x = Math.round(pos.getCenterX());
-		float y = Math.round(pos.getCenterY());
-		float angle=Math.round(pos.getAngleDegrees());
-		font.draw(batch, fps + " fps      X=" + x + " Y=" + y+" Angle="+angle, 5 - screenWidth / 2, 20 - screenHeight / 2);
+		float x = Math.round(playerShip.getCenterX());
+		float y = Math.round(playerShip.getCenterY());
+		float angle = Math.round(playerShip.getAngleDegrees());
+		font.draw(batch, fps + " fps      X=" + x + " Y=" + y + " Angle=" + angle, 5 - screenWidth / 2,
+				20 - screenHeight / 2);
 	}
 }

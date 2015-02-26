@@ -1,7 +1,6 @@
 package org.drumm.gdx.space.weapons.guns;
 
-import org.drumm.gdx.space.Movable;
-import org.drumm.gdx.space.common.RootManager;
+import org.drumm.gdx.space.managers.RootManager;
 import org.drumm.gdx.space.ships.BaseShip;
 import org.drumm.gdx.space.weapons.ammunition.IDrawableWeapon;
 import org.drumm.gdx.space.weapons.ammunition.LaserBeam;
@@ -31,9 +30,17 @@ public class Laser extends RepeatingGun{
 	}
 
 	private IDrawableWeapon getProjectile() {
+		float laserRadius=6;
+		float th=owner.getAngleRadians();
 		LaserBeam beam = Pools.obtain(LaserBeam.class);
-		Movable m = owner.getMovable();
-		beam.init(m.getCenterX(), m.getCenterY(), m.getAngleDegrees(), 2, 10, 1000,20);
+		float x=owner.getCenterX();
+		float y=owner.getCenterY();
+		float r = owner.getLocation().radius+laserRadius;
+		float sin=(float) (Math.sin(th)*r);
+		float cos=(float) (Math.cos(th)*r);       
+		x+=sin;
+		y+=cos;
+		beam.init(x, y, owner.getAngleDegrees(), 2, 10, 1000,20);
 		return beam;
 	}
 }

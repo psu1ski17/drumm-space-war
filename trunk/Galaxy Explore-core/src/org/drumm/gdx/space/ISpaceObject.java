@@ -1,6 +1,10 @@
 package org.drumm.gdx.space;
 
-public interface ISpaceObject {
+import org.drumm.gdx.space.common.Updateable;
+
+import com.badlogic.gdx.math.Circle;
+
+public interface ISpaceObject extends Updateable{
 
 	public abstract void setPositionOrientaiton(float x, float y, float degrees);
 
@@ -44,8 +48,11 @@ public interface ISpaceObject {
 
 	public abstract void setY(float y);
 
+	@Override
 	void update(float delta);
 
-	void setCenterPosition(int x, int y);
+	void setCenterPosition(float destX, float destY);
+	
+	Circle getLocation();
 
 }

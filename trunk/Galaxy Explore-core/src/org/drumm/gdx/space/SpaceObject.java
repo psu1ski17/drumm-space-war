@@ -1,11 +1,19 @@
 package org.drumm.gdx.space;
 
+import com.badlogic.gdx.math.Circle;
+
 public class SpaceObject implements ISpaceObject {
 	protected float x;
 	protected float y;
 	protected float degrees;
-	protected float width;
-	protected float height;
+	private float width;
+	private float height;
+	private Circle location;
+	private float radius;
+
+	public SpaceObject() {
+		this(0, 0, 0, 0, 0);
+	}
 
 	public SpaceObject(float x, float y, float degrees, float width, float height) {
 		super();
@@ -14,6 +22,8 @@ public class SpaceObject implements ISpaceObject {
 		this.degrees = degrees;
 		this.width = width;
 		this.height = height;
+		location = new Circle(getCenterX(), getCenterY(), radius);
+		updateRadius();
 	}
 
 	/*
@@ -163,7 +173,7 @@ public class SpaceObject implements ISpaceObject {
 	@Override
 	public void setWidth(float width) {
 		this.width = width;
-
+		updateRadius();
 	}
 
 	/*
@@ -174,6 +184,7 @@ public class SpaceObject implements ISpaceObject {
 	@Override
 	public void setHeight(float height) {
 		this.height = height;
+		updateRadius();
 	}
 
 	/*
@@ -237,12 +248,37 @@ public class SpaceObject implements ISpaceObject {
 	}
 
 	@Override
-	public void setCenterPosition(int x, int y) {
-		setPosition(x - width / 2, y - height / 2);
+	public void setCenterPosition(float x, float y) {
+		setPosition(x - width / 2f, y - height / 2f);
 
 	}
 
 	@Override
-	public void update(float delta) {
+	public final void update(float delta) {
+		doSubUpdate(delta);
+		updateLocation();
+	}
+
+	protected void doSubUpdate(float delta) {
+
+	}
+
+	protected void updateLocation() {
+		location.x = getCenterX();
+		location.y = getCenterY();
+	}
+
+	private void updateRadius() {
+		if (height > width) {
+			radius = height/2.0f;
+		} else {
+			radius = width/2.0f;
+		}
+		location.radius=radius;
+	}
+
+	@Override
+	public Circle getLocation() {
+		return location;
 	}
 }
