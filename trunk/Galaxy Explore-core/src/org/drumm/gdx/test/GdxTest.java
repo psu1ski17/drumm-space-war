@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.drumm.gdx.space.ForceBasedMovable;
 import org.drumm.gdx.space.ShipController;
+import org.drumm.gdx.space.SimpleMovable;
 import org.drumm.gdx.space.bodies.BasePlanet;
 import org.drumm.gdx.space.managers.PlanetManager;
 import org.drumm.gdx.space.managers.RootManager;
@@ -16,6 +17,8 @@ import org.drumm.gdx.space.weapons.guns.Laser;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -84,7 +87,23 @@ public class GdxTest extends ApplicationAdapter {
 		BaseShip npcShip = new BaseShip(shipTextures, engineTextures, numShips, .125f);
 		npcShip.setX(25);
 		npcShip.setY(100);
-		ShipController m = npcShip.getController();
+		
+		float thrust=0;
+		float drag = 00f;
+		float speed = 0;
+		float maxSpeed = 300;
+		float maxReverseSpeed = 0;
+		float angularVelocity = 0;
+		float angularDrag = 2000;
+		float maxAngularVelocity = 250;
+		float maxAngularAccelleration = 2000;
+		float angularAccelleration = 0;
+		float maxFowardAcceleration=500f;
+		float maxReverseAcceleration=1000f;
+		
+		
+		ShipController m = new ForceBasedMovable(npcShip, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+		npcShip.setController(m);
 		if (m instanceof ForceBasedMovable) {
 			ForceBasedMovable fbm = (ForceBasedMovable) m;
 			fbm.setAngularVelocity(0);
@@ -95,7 +114,8 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		npcShip.setShipNumber(5);
 		BaseShip npcShip2 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		m = npcShip2.getController();
+		 m = new ForceBasedMovable(npcShip, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+		npcShip2.setController(m);
 		npcShip2.setX(-150);
 		npcShip2.setY(-250);
 		if (m instanceof ForceBasedMovable) {
@@ -107,7 +127,8 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		npcShip2.setShipNumber(2);
 		BaseShip npcShip3 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		m = npcShip3.getController();
+		m = new ForceBasedMovable(npcShip, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+		npcShip3.setController(m);
 		npcShip3.setX(300);
 		npcShip3.setY(-250);
 		if (m instanceof ForceBasedMovable) {
@@ -143,6 +164,64 @@ public class GdxTest extends ApplicationAdapter {
 		initStars(numStars);
 
 		batch = new SpriteBatch();
+
+		Gdx.input.setInputProcessor(new InputProcessor() {
+			private Vector3 touchPos = new Vector3();
+
+			@Override
+			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+				if (button == Input.Buttons.RIGHT) {
+					System.out.println("stop");
+					playerShip.disableFire();
+				}
+				return true;
+			}
+
+			@Override
+			public boolean touchDragged(int screenX, int screenY, int pointer) {
+				return false;
+			}
+
+			@Override
+			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+				touchPos.set(screenX, screenY, 0);
+//				System.out.println("touched: " + touchPos.x + ", " + touchPos.y + " button=" + button);
+				camera.unproject(touchPos);
+				if (button == Input.Buttons.LEFT) {
+					playerShip.getController().moveTo(touchPos.x, touchPos.y);
+				} else if (button == Input.Buttons.RIGHT) {
+					System.out.println("firing");
+					playerShip.enableFire();
+				}
+				return true;
+			}
+
+			@Override
+			public boolean scrolled(int amount) {
+				playerShip.getController().accelerate(amount);
+				return true;
+			}
+
+			@Override
+			public boolean mouseMoved(int screenX, int screenY) {
+				return false;
+			}
+
+			@Override
+			public boolean keyUp(int keycode) {
+				return false;
+			}
+
+			@Override
+			public boolean keyTyped(char character) {
+				return false;
+			}
+
+			@Override
+			public boolean keyDown(int keycode) {
+				return false;
+			}
+		});
 	}
 
 	@Override
@@ -166,14 +245,15 @@ public class GdxTest extends ApplicationAdapter {
 
 	private void processInputAndUpdate(float delta) {
 		ShipController controller = playerShip.getController();
-		if (Gdx.input.isTouched()) {
+
+		if (Gdx.input.isTouched(0)) {
 			Vector3 touchPos = new Vector3();
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-			System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
+//			System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
 			camera.unproject(touchPos);
 
-			System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
-			controller.moveTo(touchPos.x, touchPos.y);
+//			System.out.println("touched: " + touchPos.x + ", " + touchPos.y);
+			// controller.moveTo(touchPos.x, touchPos.y);
 			// shipAngleRad = (float) Math.atan2(touchPos.y - ship.y -
 			// ship.height /
 			// 2, touchPos.x - ship.x - ship.width
@@ -186,6 +266,9 @@ public class GdxTest extends ApplicationAdapter {
 			// System.out.println("touched: " + touchPos.x + ", " + touchPos.y +
 			// " ship: " + ship.x + ", " + ship.y
 			// + " degrees=" + shipAngleDegrees);
+		}
+		if (Gdx.input.isTouched(1)) {
+			// System.out.println("touched 2");
 		}
 		if (Gdx.input.isKeyPressed(Keys.R)) {
 			resetPlayerShip();
@@ -200,10 +283,10 @@ public class GdxTest extends ApplicationAdapter {
 		} else {
 			controller.turnLeft(0);
 		}
-		if (Gdx.input.isKeyPressed(Keys.UP)) {
+		if (Gdx.input.isKeyJustPressed(Keys.UP)) {
 			controller.overrideAuto();
 			controller.accelerate(magnitude);
-		} else if (Gdx.input.isKeyPressed(Keys.DOWN)) {
+		} else if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
 			controller.overrideAuto();
 			controller.accelerate(-magnitude);
 		} else {

@@ -3,6 +3,7 @@ package org.drumm.gdx.space.ships;
 import org.drumm.gdx.space.Drawable;
 import org.drumm.gdx.space.ForceBasedMovable;
 import org.drumm.gdx.space.ShipController;
+import org.drumm.gdx.space.SimpleMovable;
 import org.drumm.gdx.space.SpaceObject;
 import org.drumm.gdx.space.ThrustableDrawable;
 import org.drumm.gdx.space.common.Updateable;
@@ -62,8 +63,9 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 		float angularAccelleration = 0;
 		float maxFowardAcceleration=500f;
 		float maxReverseAcceleration=1000f;
-		this.controller = new ForceBasedMovable(this, angularAccelleration, maxAngularAccelleration,
-				angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+//		this.controller = new ForceBasedMovable(this, angularAccelleration, maxAngularAccelleration,
+//				angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+		controller=new SimpleMovable(this, maxSpeed, 5, speed, angularVelocity);
 		this.drawable=new ThrustableDrawable(this,controller, ships, engines);
 		this.shootable=new BaseShootable(this, 100);
 		setShipNumber(0);
@@ -136,6 +138,10 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 
 	public ShipController getController() {
 		return controller;
+	}
+	
+	public void setController(ShipController controller) {
+		this.controller=controller;
 	}
 
 	// public void setShipPosition(float x, float y) {
