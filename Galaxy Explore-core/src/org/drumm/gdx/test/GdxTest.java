@@ -114,7 +114,7 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		npcShip.setShipNumber(5);
 		BaseShip npcShip2 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		 m = new ForceBasedMovable(npcShip, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+		 m = new ForceBasedMovable(npcShip2, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
 		npcShip2.setController(m);
 		npcShip2.setX(-150);
 		npcShip2.setY(-250);
@@ -127,7 +127,7 @@ public class GdxTest extends ApplicationAdapter {
 		}
 		npcShip2.setShipNumber(2);
 		BaseShip npcShip3 = new BaseShip(shipTextures, engineTextures, numShips, .125f);
-		m = new ForceBasedMovable(npcShip, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
+		m = new ForceBasedMovable(npcShip3, angularAccelleration, maxAngularAccelleration, angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
 		npcShip3.setController(m);
 		npcShip3.setX(300);
 		npcShip3.setY(-250);

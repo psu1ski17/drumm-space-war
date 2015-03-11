@@ -112,10 +112,10 @@ public class ForceBasedMovable extends BaseMovable implements ShipController,Thr
 		if (activeMoveTo) {
 			angleTo = angleTo(destX, destY);
 			float angDiff = angDist(degrees, angleTo);
-			if (angDiff>45){
-			System.out.println("anglediff= "+angDiff+ " angle to:" + angleTo + " from " + x + ", " + y + " to: " + destX + "," + destY
-					+ "current:" + degrees);
-			}
+//			if (angDiff>45){
+//			System.out.println("anglediff= "+angDiff+ " angle to:" + angleTo + " from " + x + ", " + y + " to: " + destX + "," + destY
+//					+ "current:" + degrees);
+//			}
 			float dist = dist(destX, destY, x, y);
 
 			if (Math.abs(dist) < 0.01) {
