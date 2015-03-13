@@ -11,11 +11,14 @@ import org.drumm.gdx.space.ships.Shootable.HasShootable;
 import org.drumm.gdx.space.weapons.HasWeapons;
 import org.drumm.gdx.space.weapons.guns.IGun;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
 
-public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasShootable, Updateable{
+public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasShootable, Updateable {
 	protected TextureRegion[] ships;
 	protected TextureRegion[] engines;
 	private int shipNumber;
@@ -42,7 +45,7 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 	private Shootable shootable;
 
 	public BaseShip(TextureRegion[] ships, TextureRegion[] engines, int numShips, float shipScale) {
-		guns=new Array<IGun>();
+		guns = new Array<IGun>();
 		this.ships = ships;
 		this.engines = engines;
 		// shipAngleDegrees = 0;
@@ -51,7 +54,7 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 		this.numShips = numShips;
 		this.shipScale = shipScale;
 
-		float thrust=0;
+		float thrust = 0;
 		float drag = 00f;
 		float speed = 0;
 		float maxSpeed = 300;
@@ -61,13 +64,16 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 		float maxAngularVelocity = 250;
 		float maxAngularAccelleration = 2000;
 		float angularAccelleration = 0;
-		float maxFowardAcceleration=500f;
-		float maxReverseAcceleration=1000f;
-//		this.controller = new ForceBasedMovable(this, angularAccelleration, maxAngularAccelleration,
-//				angularDrag, angularVelocity, maxAngularVelocity, thrust, speed, drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration, maxReverseAcceleration);
-		controller=new SimpleMovable(this, maxSpeed, 5, speed, angularVelocity);
-		this.drawable=new ThrustableDrawable(this,controller, ships, engines);
-		this.shootable=new BaseShootable(this, 100);
+		float maxFowardAcceleration = 500f;
+		float maxReverseAcceleration = 1000f;
+		// this.controller = new ForceBasedMovable(this, angularAccelleration,
+		// maxAngularAccelleration,
+		// angularDrag, angularVelocity, maxAngularVelocity, thrust, speed,
+		// drag, maxSpeed, maxReverseSpeed, maxFowardAcceleration,
+		// maxReverseAcceleration);
+		controller = new SimpleMovable(this, maxSpeed, 5, speed, angularVelocity);
+		this.drawable = new ThrustableDrawable(this, controller, ships, engines);
+		this.shootable = new BaseShootable(this, 100000);
 		setShipNumber(0);
 	}
 
@@ -79,23 +85,29 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 		this.shipNumber = shipNumber;
 		int width = ships[shipNumber].getRegionWidth();
 		int height = ships[shipNumber].getRegionHeight();
-		setWidth(width*shipScale);
-		setHeight(height*shipScale);
-		if (drawable instanceof ThrustableDrawable){
+		setWidth(width * shipScale);
+		setHeight(height * shipScale);
+		if (drawable instanceof ThrustableDrawable) {
 			((ThrustableDrawable) drawable).setShipNumber(shipNumber);
+		}
+	}
+
+	public void setTarget(float x, float y) {
+		for (IGun gun : guns) {
+			gun.setTarget(x, y);
 		}
 	}
 
 	@Override
 	public void enableFire() {
-		for (IGun gun:guns){
+		for (IGun gun : guns) {
 			gun.enableFire();
 		}
 	}
 
 	@Override
 	public void disableFire() {
-		for (IGun gun:guns){
+		for (IGun gun : guns) {
 			gun.disableFire();
 		}
 	}
@@ -123,7 +135,7 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 	@Override
 	public void doSubUpdate(float delta) {
 		super.doSubUpdate(delta);
-		for(IGun gun:guns){
+		for (IGun gun : guns) {
 			gun.update(delta);
 		}
 		shootable.update(delta);
@@ -136,12 +148,32 @@ public class BaseShip extends SpaceObject implements Drawable, HasWeapons, HasSh
 		shootable.draw(batch);
 	}
 
+	@Override
+	public void drawDebug(ShapeRenderer sr) {
+		drawable.drawDebug(sr);
+		shootable.drawDebug(sr);
+		for (IGun gun : guns) {
+			
+			if (gun.isReloading()) {
+				sr.setColor(Color.YELLOW);
+			} else if (gun.isFiring()) {
+				sr.setColor(Color.RED);
+			} else {
+				sr.setColor(Color.WHITE);
+			}
+			
+//			sr.begin(ShapeType.Filled);
+//			sr.circle(gun.getTargetX(), gun.getTargetY(), 5, 4);
+//			sr.end();
+		}
+	}
+
 	public ShipController getController() {
 		return controller;
 	}
-	
+
 	public void setController(ShipController controller) {
-		this.controller=controller;
+		this.controller = controller;
 	}
 
 	// public void setShipPosition(float x, float y) {

@@ -60,9 +60,13 @@ public abstract class RepeatingGun extends BaseGun {
 	protected abstract boolean isAbleToReload();
 
 	protected abstract void fire();
-
+	
 	@Override
 	public void update(float delta) {
+		oldUpdate(delta);
+	}
+	
+	public void oldUpdate(float delta) {
 		if (reloading) {
 			reloadCounter += delta;
 			if (reloadCounter >= reloadTime) {
@@ -75,11 +79,10 @@ public abstract class RepeatingGun extends BaseGun {
 			if (nextShotTime>0){
 				nextShotTime-=delta;
 			}
-			System.out.println("Firing next shot time="+nextShotTime);
-			if (canFireWhileReloading() && reloading || !reloading) {
+			if ((canFireWhileReloading() && reloading) || !reloading) {
 				if(nextShotTime<=0){
 					fire();
-					nextShotTime+=shotsPerSecond;
+					nextShotTime+=secondsPerShot;
 				}
 			}else{
 				if (nextShotTime<0){

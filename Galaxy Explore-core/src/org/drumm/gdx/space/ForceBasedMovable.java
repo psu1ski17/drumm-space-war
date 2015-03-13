@@ -1,5 +1,7 @@
 package org.drumm.gdx.space;
 
+import org.drumm.gdx.util.MathUtil;
+
 public class ForceBasedMovable extends BaseMovable implements ShipController,Thrustable {
 
 	private float angularAccelleration;
@@ -111,12 +113,12 @@ public class ForceBasedMovable extends BaseMovable implements ShipController,Thr
 		float angleTo = destAngle;
 		if (activeMoveTo) {
 			angleTo = angleTo(destX, destY);
-			float angDiff = angDist(degrees, angleTo);
+			float angDiff = MathUtil.angularDistance(degrees, angleTo);
 //			if (angDiff>45){
 //			System.out.println("anglediff= "+angDiff+ " angle to:" + angleTo + " from " + x + ", " + y + " to: " + destX + "," + destY
 //					+ "current:" + degrees);
 //			}
-			float dist = dist(destX, destY, x, y);
+			float dist = MathUtil.distance(destX, destY, x, y);
 
 			if (Math.abs(dist) < 0.01) {
 				activeMoveTo = false;
@@ -142,7 +144,7 @@ public class ForceBasedMovable extends BaseMovable implements ShipController,Thr
 			if (cheatTurnTo) {
 				spaceObject.setAngleDegrees(angleTo);
 			} else {
-				float angDiff = angDist(degrees, angleTo);
+				float angDiff = MathUtil.angularDistance(degrees, angleTo);
 				if (Math.abs(angDiff) < 0.001) {
 					activeTurnTo = false;
 					spaceObject.setAngleDegrees(angleTo);
@@ -246,18 +248,6 @@ public class ForceBasedMovable extends BaseMovable implements ShipController,Thr
 			angleTo += 180;
 		}
 		return angleTo;
-	}
-
-	private float dist(float x, float y, float x2, float y2) {
-		float distSquared = (x2 - x) * (x2 - x) + (y2 - y) * (y2 - y);
-		float dist = (float) Math.sqrt(distSquared);
-		return dist;
-	}
-
-	private float angDist(float ang1, float ang2) {
-		float a = ang2 - ang1;
-		a = (a + 180f) % 360f - 180f;
-		return a;
 	}
 
 	@Override

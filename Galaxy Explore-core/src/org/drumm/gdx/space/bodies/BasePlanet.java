@@ -6,6 +6,7 @@ import org.drumm.gdx.space.SpaceObject;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class BasePlanet extends SpaceObject implements Drawable{
 
@@ -19,5 +20,10 @@ public class BasePlanet extends SpaceObject implements Drawable{
 	@Override
 	public void draw(SpriteBatch batch) {
 		SimpleDrawer.draw(batch, this, texture);
+	}
+
+	@Override
+	public void drawDebug(ShapeRenderer sr) {
+		// TODO Auto-generated method stub
 	}
 }

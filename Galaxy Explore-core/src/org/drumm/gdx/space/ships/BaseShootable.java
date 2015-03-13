@@ -5,6 +5,7 @@ import org.drumm.gdx.space.managers.RootManager;
 import org.drumm.gdx.space.weapons.ammunition.IDamager;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 
 
@@ -61,5 +62,11 @@ public class BaseShootable implements Shootable {
 	@Override
 	public void draw(SpriteBatch batch) {
 		//draw shield?  draw being hit?		
+	}
+
+	@Override
+	public void drawDebug(ShapeRenderer sr) {
+		// TODO Auto-generated method stub
+		
 	}
 }

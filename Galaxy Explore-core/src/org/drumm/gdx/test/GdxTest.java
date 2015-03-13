@@ -50,6 +50,9 @@ public class GdxTest extends ApplicationAdapter {
 	private int fpsNumFrame;
 	private float fps;
 	private Texture planetTxr;
+	private boolean debug=true;
+	private ShapeRenderer screenRenderer;
+	private ShapeRenderer worldRenderer;
 
 	@Override
 	public void create() {
@@ -160,6 +163,9 @@ public class GdxTest extends ApplicationAdapter {
 
 		camera.update();
 
+		worldRenderer=new ShapeRenderer();
+		screenRenderer=new ShapeRenderer();
+		worldRenderer.setProjectionMatrix(camera.combined);
 		int numStars = 300;
 		initStars(numStars);
 
@@ -167,19 +173,29 @@ public class GdxTest extends ApplicationAdapter {
 
 		Gdx.input.setInputProcessor(new InputProcessor() {
 			private Vector3 touchPos = new Vector3();
+			private boolean leftDown;
+			private boolean rightDown;
+			private boolean middleDown;
 
 			@Override
 			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 				if (button == Input.Buttons.RIGHT) {
 					System.out.println("stop");
 					playerShip.disableFire();
+					rightDown=false;
 				}
 				return true;
 			}
 
 			@Override
 			public boolean touchDragged(int screenX, int screenY, int pointer) {
-				return false;
+				touchPos.set(screenX, screenY, 0);
+//				System.out.println("touched: " + touchPos.x + ", " + touchPos.y + " button=" + button);
+				camera.unproject(touchPos);
+				if (rightDown){
+					playerShip.setTarget(touchPos.x, touchPos.y);
+				}
+				return true;
 			}
 
 			@Override
@@ -190,8 +206,9 @@ public class GdxTest extends ApplicationAdapter {
 				if (button == Input.Buttons.LEFT) {
 					playerShip.getController().moveTo(touchPos.x, touchPos.y);
 				} else if (button == Input.Buttons.RIGHT) {
-					System.out.println("firing");
 					playerShip.enableFire();
+					playerShip.setTarget(touchPos.x, touchPos.y);
+					rightDown=true;
 				}
 				return true;
 			}
@@ -232,13 +249,14 @@ public class GdxTest extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.position.set(playerShip.getCenterX(), playerShip.getCenterY(), 0);
 		camera.update();
+		worldRenderer.setProjectionMatrix(camera.combined);
 
 		drawBackground();
 
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		doBatch();
-		batch.setProjectionMatrix(camera.projection);
+		batch.setProjectionMatrix(screenRenderer.getProjectionMatrix());
 		drawInterface(batch, delta);
 		batch.end();
 	}
@@ -297,11 +315,11 @@ public class GdxTest extends ApplicationAdapter {
 			shipNum %= numShips;
 			playerShip.setShipNumber(shipNum);
 		}
-		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
-			playerShip.enableFire();
-		} else {
-			playerShip.disableFire();
-		}
+//		if (Gdx.input.isKeyPressed(Keys.SPACE)) {
+//			playerShip.enableFire();
+//		} else {
+//			playerShip.disableFire();
+//		}
 
 		RootManager.updateAll(delta);
 	}
@@ -314,7 +332,7 @@ public class GdxTest extends ApplicationAdapter {
 		float left = camera.position.x - camera.viewportWidth / 2;
 		float top = camera.position.y - camera.viewportHeight / 2;
 		Rectangle viewportRect = new Rectangle(left, top, camera.viewportWidth, camera.viewportHeight);
-		RootManager.drawAll(batch, viewportRect);
+		RootManager.drawAll(batch, viewportRect, debug, worldRenderer);
 	}
 
 	private void initStars(int numStars) {
@@ -332,18 +350,32 @@ public class GdxTest extends ApplicationAdapter {
 	}
 
 	private void drawBackground() {
-		ShapeRenderer sr = new ShapeRenderer();
-
-		sr.setProjectionMatrix(camera.combined);
-		sr.begin(ShapeType.Line);
-		sr.circle(0, 0, 25);
-		sr.end();
+		screenRenderer.setColor(Color.ORANGE);
+		screenRenderer.begin(ShapeType.Line);
+		screenRenderer.circle(50, 50, 10);
+		screenRenderer.circle(100, 100, 10);
+		screenRenderer.circle(-50, -50, 10);
+		screenRenderer.circle(-100, -100, 10);
+		screenRenderer.end();
+		
+		worldRenderer.setColor(Color.GREEN);
+		worldRenderer.begin(ShapeType.Line);
+		worldRenderer.circle(50, 50, 10);
+		worldRenderer.circle(100, 100, 10);
+		worldRenderer.circle(-50, -50, 10);
+		worldRenderer.circle(-100, -100, 10);
+		worldRenderer.end();
+		
+		
+		
+		ShapeRenderer sr = worldRenderer;
 
 		sr.begin(ShapeType.Line);
 		float left = camera.position.x - screenWidth / 2 + 1;
 		float top = camera.position.y - screenHeight / 2 + 1;
 		float right = left + screenWidth - 2;
 		float bottom = top + screenHeight - 2;
+
 		sr.rect(left, top, screenWidth - 2, screenHeight - 2);
 		sr.end();
 
