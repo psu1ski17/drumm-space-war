@@ -5,4 +5,9 @@ public interface IGun {
 	public void disableFire();
 	public void reload(float ammo);
 	public void update(float delta);
+	public void setTarget(float x, float y);
+	public float getTargetX();
+	public float getTargetY();
+	public boolean isFiring();
+	public boolean isReloading();
 }

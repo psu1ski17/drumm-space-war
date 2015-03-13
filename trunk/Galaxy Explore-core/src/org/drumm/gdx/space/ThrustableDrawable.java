@@ -3,6 +3,7 @@ package org.drumm.gdx.space;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class ThrustableDrawable implements Drawable{
 
@@ -42,6 +43,12 @@ public class ThrustableDrawable implements Drawable{
 
 	public void setShipNumber(int shipNumber) {
 		this.shipNumber = shipNumber;
+	}
+
+	@Override
+	public void drawDebug(ShapeRenderer worldRenderer) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

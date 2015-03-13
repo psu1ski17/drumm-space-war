@@ -6,6 +6,7 @@ import org.drumm.gdx.space.weapons.ammunition.IDrawableWeapon;
 import org.drumm.gdx.space.weapons.ammunition.IWeaponDrawManager;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
@@ -61,21 +62,26 @@ public class RootManager {
 			proj.update(delta);
 		}
 	}
-	
 
-	public static void drawAll(SpriteBatch batch, Rectangle viewportRect) {
+	public static void drawAll(SpriteBatch batch, Rectangle viewportRect, boolean debug, ShapeRenderer sr) {
 		Array<? extends BasePlanet> planets = instance.planetManager.getInRect(viewportRect);
-		for(BasePlanet p:planets){
+		for (BasePlanet p : planets) {
 			p.draw(batch);
+			if (debug)
+				p.drawDebug(sr);
 		}
 		Array<? extends BaseShip> drawableShips = instance.shipManager.getInRect(viewportRect);
-		for(BaseShip s:drawableShips){
+		for (BaseShip s : drawableShips) {
 			s.draw(batch);
+			if (debug)
+				s.drawDebug(sr);
 		}
 		Array<? extends IDrawableWeapon> allProj = instance.weaponDrawManager.getInRect(viewportRect);
-		for(IDrawableWeapon proj:allProj){
+		for (IDrawableWeapon proj : allProj) {
 			proj.draw(batch);
+			if (debug)
+				proj.drawDebug(sr);
 		}
-		
+
 	}
 }
